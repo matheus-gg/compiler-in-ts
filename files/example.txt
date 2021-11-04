@@ -1,0 +1,26 @@
+bool isTen(int value) {
+	if (value = 10) {
+		return true;
+	} else {
+		return false;
+	};
+};
+# Apenas um comentario para testes
+
+int a0 = 1;
+int b0 = [1, 2, 3];
+{
+	if (a0 > 10) {
+		goto finish;
+	};
+	bool result = isTen(a0);
+	while (result ! true) {
+		a0 = a0 + 1;
+		result = isTen(a0);
+	};
+	goto finish;
+};
+
+finish: {
+	print(a0);
+};
