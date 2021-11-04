@@ -8,3 +8,5 @@ Para executar o projeto é preciso instalar o npm (https://docs.npmjs.com/downlo
 `npx tsc`
 
 `node build/index.js`
+
+Após a execução dos comandos, serão imprimidos logs no terminal referentes à extração de linhas, categorização ASCII e categorização léxica, resultando na fila de tokens a serem analisados pelo reconhecedor sintático.
