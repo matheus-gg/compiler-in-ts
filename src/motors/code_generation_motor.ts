@@ -128,9 +128,9 @@ const generateLLVMIRCode = () => {
                 command = `%${splittedTokens[0]} = ${rightOperand}\n`;
                 if (splittedTokens[0] === whileControlVar) {
                   const commandBody = `br label %while${whileCount}.latch\n`;
-                  let commandLatch = `%while${whileCount}.latch:\n`;
+                  let commandLatch = `while${whileCount}.latch:\n`;
                   commandLatch += `%i.next = %${whileControlVar}\n`;
-                  commandLatch += `br label %while${whileCount}.header\n`;
+                  commandLatch += `br label %while${whileCount}.header\n\n`;
                   command += `${commandBody}\n${commandLatch}`;
                 }
               } else {
@@ -153,9 +153,9 @@ const generateLLVMIRCode = () => {
                   command += `%${splittedTokens[0]} = ${llvmOperator} i32 ${firstOperand}, ${secondOperand}\n`;
                   if (splittedTokens[0] === whileControlVar) {
                     const commandBody = `br label %while${whileCount}.latch\n`;
-                    let commandLatch = `%while${whileCount}.latch:\n`;
+                    let commandLatch = `while${whileCount}.latch:\n`;
                     commandLatch += `%i.next = %${whileControlVar}\n`;
-                    commandLatch += `br label %while${whileCount}.header\n`;
+                    commandLatch += `br label %while${whileCount}.header\n\n`;
                     command += `${commandBody}\n${commandLatch}`;
                   }
                 } else throw new Error(`Invalid operatorPosition: ${operatorPosition}`);
@@ -215,9 +215,9 @@ const generateLLVMIRCode = () => {
               console.info('Command: ', command);
               if (splittedTokens[0] === whileControlVar) {
                 const commandBody = `br label %while${whileCount}.latch\n`;
-                let commandLatch = `%while${whileCount}.latch:\n`;
+                let commandLatch = `while${whileCount}.latch:\n`;
                 commandLatch += `%i.next = %${whileControlVar}\n`;
-                commandLatch += `br label %while${whileCount}.header\n`;
+                commandLatch += `br label %while${whileCount}.header\n\n`;
                 command += `${commandBody}\n${commandLatch}`;
               }
               insertMachineCommand(command);
