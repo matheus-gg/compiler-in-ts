@@ -1,11 +1,13 @@
 import { addEventToQueue, getEventFromQueue, readEventFromQueue } from '../utils/queue_helper';
 import { lexicalCategorizerQueue, tokensQueue } from '../utils/queues';
-import { GenericEvent } from '../types/events';
+import { LexicalCategorizerEvent, TokenEvent } from '../types/events';
 
 const letterRegex = /^[a-zA-Z]$/;
 const digitRegex = /^[0-9]$/;
+const arithmeticOpRegex = /^[+\-*/]$/;
+const booleanOpRegex = /^[=><!]$/;
 
-let eventBuffer: GenericEvent | undefined;
+let eventBuffer: LexicalCategorizerEvent | undefined;
 
 type IsBoolReturn = {
   bool: boolean;
@@ -23,6 +25,7 @@ type IsReservedKeyReturn = {
     'bool' |
     'void' |
     'return' |
+    'print' |
     'true' |
     'false';
 };
@@ -31,6 +34,7 @@ type LexicalFSMReturn = {
   token: string;
   type: string;
   subType?: string;
+  add?: string;
 };
 
 const removeUndefinedKeys = (obj: Record<string, unknown>): Record<string, unknown> => {
@@ -41,13 +45,13 @@ const removeUndefinedKeys = (obj: Record<string, unknown>): Record<string, unkno
 
 const lookAheadForBoolExp = (char: 't' | 'f'): IsBoolReturn => {
   if (char === 't') {
-    if (readEventFromQueue(lexicalCategorizerQueue, 0)?.value === 'r' &&
-      readEventFromQueue(lexicalCategorizerQueue, 1)?.value === 'u' &&
-      readEventFromQueue(lexicalCategorizerQueue, 2)?.value === 'e' &&
-      (readEventFromQueue(lexicalCategorizerQueue, 3)?.value === ' ' ||
-      readEventFromQueue(lexicalCategorizerQueue, 3)?.value === ';' ||
-      readEventFromQueue(lexicalCategorizerQueue, 3)?.value === ',' ||
-      readEventFromQueue(lexicalCategorizerQueue, 3)?.value === ']')) {
+    if ((readEventFromQueue(lexicalCategorizerQueue, 0) as LexicalCategorizerEvent)?.value === 'r' &&
+      (readEventFromQueue(lexicalCategorizerQueue, 1) as LexicalCategorizerEvent)?.value === 'u' &&
+      (readEventFromQueue(lexicalCategorizerQueue, 2) as LexicalCategorizerEvent)?.value === 'e' &&
+      ((readEventFromQueue(lexicalCategorizerQueue, 3) as LexicalCategorizerEvent)?.value === ' ' ||
+      (readEventFromQueue(lexicalCategorizerQueue, 3) as LexicalCategorizerEvent)?.value === ';' ||
+      (readEventFromQueue(lexicalCategorizerQueue, 3) as LexicalCategorizerEvent)?.value === ',' ||
+      (readEventFromQueue(lexicalCategorizerQueue, 3) as LexicalCategorizerEvent)?.value === ']')) {
         getEventFromQueue(lexicalCategorizerQueue);
         getEventFromQueue(lexicalCategorizerQueue);
         getEventFromQueue(lexicalCategorizerQueue);
@@ -60,14 +64,14 @@ const lookAheadForBoolExp = (char: 't' | 'f'): IsBoolReturn => {
       bool: false,
     };
   } if (char === 'f') {
-    if (readEventFromQueue(lexicalCategorizerQueue, 0)?.value === 'a' &&
-      readEventFromQueue(lexicalCategorizerQueue, 1)?.value === 'l' &&
-      readEventFromQueue(lexicalCategorizerQueue, 2)?.value === 's' &&
-      readEventFromQueue(lexicalCategorizerQueue, 3)?.value === 'e' &&
-      (readEventFromQueue(lexicalCategorizerQueue, 4)?.value === ' ' ||
-      readEventFromQueue(lexicalCategorizerQueue, 4)?.value === ';' ||
-      readEventFromQueue(lexicalCategorizerQueue, 4)?.value === ',' ||
-      readEventFromQueue(lexicalCategorizerQueue, 4)?.value === ']')) {
+    if ((readEventFromQueue(lexicalCategorizerQueue, 0) as LexicalCategorizerEvent)?.value === 'a' &&
+      (readEventFromQueue(lexicalCategorizerQueue, 1) as LexicalCategorizerEvent)?.value === 'l' &&
+      (readEventFromQueue(lexicalCategorizerQueue, 2) as LexicalCategorizerEvent)?.value === 's' &&
+      (readEventFromQueue(lexicalCategorizerQueue, 3) as LexicalCategorizerEvent)?.value === 'e' &&
+      ((readEventFromQueue(lexicalCategorizerQueue, 4) as LexicalCategorizerEvent)?.value === ' ' ||
+      (readEventFromQueue(lexicalCategorizerQueue, 4) as LexicalCategorizerEvent)?.value === ';' ||
+      (readEventFromQueue(lexicalCategorizerQueue, 4) as LexicalCategorizerEvent)?.value === ',' ||
+      (readEventFromQueue(lexicalCategorizerQueue, 4) as LexicalCategorizerEvent)?.value === ']')) {
         getEventFromQueue(lexicalCategorizerQueue);
         getEventFromQueue(lexicalCategorizerQueue);
         getEventFromQueue(lexicalCategorizerQueue);
@@ -86,13 +90,13 @@ const lookAheadForBoolExp = (char: 't' | 'f'): IsBoolReturn => {
   };
 };
 
-const lookAheadForReservedKey = (char: 'g' | 'i' | 'e' | 'w' | 'b' | 'v' | 'r'): IsReservedKeyReturn => {
+const lookAheadForReservedKey = (char: 'g' | 'i' | 'e' | 'w' | 'b' | 'v' | 'r' | 'p'): IsReservedKeyReturn => {
   if (char === 'g') {
-    if (readEventFromQueue(lexicalCategorizerQueue, 0)?.value === 'o' &&
-      readEventFromQueue(lexicalCategorizerQueue, 1)?.value === 't' &&
-      readEventFromQueue(lexicalCategorizerQueue, 2)?.value === 'o' &&
-      (readEventFromQueue(lexicalCategorizerQueue, 3)?.value === ' ' ||
-      readEventFromQueue(lexicalCategorizerQueue, 3)?.value === ';')) {
+    if ((readEventFromQueue(lexicalCategorizerQueue, 0) as LexicalCategorizerEvent)?.value === 'o' &&
+      (readEventFromQueue(lexicalCategorizerQueue, 1) as LexicalCategorizerEvent)?.value === 't' &&
+      (readEventFromQueue(lexicalCategorizerQueue, 2) as LexicalCategorizerEvent)?.value === 'o' &&
+      ((readEventFromQueue(lexicalCategorizerQueue, 3) as LexicalCategorizerEvent)?.value === ' ' ||
+      (readEventFromQueue(lexicalCategorizerQueue, 3) as LexicalCategorizerEvent)?.value === ';')) {
       getEventFromQueue(lexicalCategorizerQueue);
       getEventFromQueue(lexicalCategorizerQueue);
       getEventFromQueue(lexicalCategorizerQueue);
@@ -103,10 +107,10 @@ const lookAheadForReservedKey = (char: 'g' | 'i' | 'e' | 'w' | 'b' | 'v' | 'r'):
     }
   }
   if (char === 'i') {
-    if (readEventFromQueue(lexicalCategorizerQueue, 0)?.value === 'n' &&
-      readEventFromQueue(lexicalCategorizerQueue, 1)?.value === 't' &&
-      (readEventFromQueue(lexicalCategorizerQueue, 2)?.value === ' ' ||
-      readEventFromQueue(lexicalCategorizerQueue, 2)?.value === ';')) {
+    if ((readEventFromQueue(lexicalCategorizerQueue, 0) as LexicalCategorizerEvent)?.value === 'n' &&
+      (readEventFromQueue(lexicalCategorizerQueue, 1) as LexicalCategorizerEvent)?.value === 't' &&
+      ((readEventFromQueue(lexicalCategorizerQueue, 2) as LexicalCategorizerEvent)?.value === ' ' ||
+      (readEventFromQueue(lexicalCategorizerQueue, 2) as LexicalCategorizerEvent)?.value === ';')) {
       getEventFromQueue(lexicalCategorizerQueue);
       getEventFromQueue(lexicalCategorizerQueue);
       return {
@@ -114,9 +118,9 @@ const lookAheadForReservedKey = (char: 'g' | 'i' | 'e' | 'w' | 'b' | 'v' | 'r'):
         value: 'int',
       };
     }
-    if (readEventFromQueue(lexicalCategorizerQueue, 0)?.value === 'f' &&
-      (readEventFromQueue(lexicalCategorizerQueue, 1)?.value === ' ' ||
-      readEventFromQueue(lexicalCategorizerQueue, 1)?.value === ';')) {
+    if ((readEventFromQueue(lexicalCategorizerQueue, 0) as LexicalCategorizerEvent)?.value === 'f' &&
+      ((readEventFromQueue(lexicalCategorizerQueue, 1) as LexicalCategorizerEvent)?.value === ' ' ||
+      (readEventFromQueue(lexicalCategorizerQueue, 1) as LexicalCategorizerEvent)?.value === ';')) {
       getEventFromQueue(lexicalCategorizerQueue);
       getEventFromQueue(lexicalCategorizerQueue);
       return {
@@ -126,11 +130,11 @@ const lookAheadForReservedKey = (char: 'g' | 'i' | 'e' | 'w' | 'b' | 'v' | 'r'):
     }
   }
   if (char === 'e') {
-    if (readEventFromQueue(lexicalCategorizerQueue, 0)?.value === 'l' &&
-    readEventFromQueue(lexicalCategorizerQueue, 1)?.value === 's' &&
-    readEventFromQueue(lexicalCategorizerQueue, 2)?.value === 'e' &&
-    (readEventFromQueue(lexicalCategorizerQueue, 3)?.value === ' ' ||
-    readEventFromQueue(lexicalCategorizerQueue, 3)?.value === ';')) {
+    if ((readEventFromQueue(lexicalCategorizerQueue, 0) as LexicalCategorizerEvent)?.value === 'l' &&
+    (readEventFromQueue(lexicalCategorizerQueue, 1) as LexicalCategorizerEvent)?.value === 's' &&
+    (readEventFromQueue(lexicalCategorizerQueue, 2) as LexicalCategorizerEvent)?.value === 'e' &&
+    ((readEventFromQueue(lexicalCategorizerQueue, 3) as LexicalCategorizerEvent)?.value === ' ' ||
+    (readEventFromQueue(lexicalCategorizerQueue, 3) as LexicalCategorizerEvent)?.value === ';')) {
       getEventFromQueue(lexicalCategorizerQueue);
       getEventFromQueue(lexicalCategorizerQueue);
       getEventFromQueue(lexicalCategorizerQueue);
@@ -141,12 +145,12 @@ const lookAheadForReservedKey = (char: 'g' | 'i' | 'e' | 'w' | 'b' | 'v' | 'r'):
     }
   }
   if (char === 'w') {
-    if (readEventFromQueue(lexicalCategorizerQueue, 0)?.value === 'h' &&
-    readEventFromQueue(lexicalCategorizerQueue, 1)?.value === 'i' &&
-    readEventFromQueue(lexicalCategorizerQueue, 2)?.value === 'l' &&
-    readEventFromQueue(lexicalCategorizerQueue, 3)?.value === 'e' &&
-    (readEventFromQueue(lexicalCategorizerQueue, 4)?.value === ' ' ||
-    readEventFromQueue(lexicalCategorizerQueue, 4)?.value === ';')) {
+    if ((readEventFromQueue(lexicalCategorizerQueue, 0) as LexicalCategorizerEvent)?.value === 'h' &&
+    (readEventFromQueue(lexicalCategorizerQueue, 1) as LexicalCategorizerEvent)?.value === 'i' &&
+    (readEventFromQueue(lexicalCategorizerQueue, 2) as LexicalCategorizerEvent)?.value === 'l' &&
+    (readEventFromQueue(lexicalCategorizerQueue, 3) as LexicalCategorizerEvent)?.value === 'e' &&
+    ((readEventFromQueue(lexicalCategorizerQueue, 4) as LexicalCategorizerEvent)?.value === ' ' ||
+    (readEventFromQueue(lexicalCategorizerQueue, 4) as LexicalCategorizerEvent)?.value === ';')) {
       getEventFromQueue(lexicalCategorizerQueue);
       getEventFromQueue(lexicalCategorizerQueue);
       getEventFromQueue(lexicalCategorizerQueue);
@@ -158,11 +162,11 @@ const lookAheadForReservedKey = (char: 'g' | 'i' | 'e' | 'w' | 'b' | 'v' | 'r'):
     }
   }
   if (char === 'b') {
-    if (readEventFromQueue(lexicalCategorizerQueue, 0)?.value === 'o' &&
-    readEventFromQueue(lexicalCategorizerQueue, 1)?.value === 'o' &&
-    readEventFromQueue(lexicalCategorizerQueue, 2)?.value === 'l' &&
-    (readEventFromQueue(lexicalCategorizerQueue, 3)?.value === ' ' ||
-    readEventFromQueue(lexicalCategorizerQueue, 3)?.value === ';')) {
+    if ((readEventFromQueue(lexicalCategorizerQueue, 0) as LexicalCategorizerEvent)?.value === 'o' &&
+    (readEventFromQueue(lexicalCategorizerQueue, 1) as LexicalCategorizerEvent)?.value === 'o' &&
+    (readEventFromQueue(lexicalCategorizerQueue, 2) as LexicalCategorizerEvent)?.value === 'l' &&
+    ((readEventFromQueue(lexicalCategorizerQueue, 3) as LexicalCategorizerEvent)?.value === ' ' ||
+    (readEventFromQueue(lexicalCategorizerQueue, 3) as LexicalCategorizerEvent)?.value === ';')) {
       getEventFromQueue(lexicalCategorizerQueue);
       getEventFromQueue(lexicalCategorizerQueue);
       getEventFromQueue(lexicalCategorizerQueue);
@@ -173,11 +177,11 @@ const lookAheadForReservedKey = (char: 'g' | 'i' | 'e' | 'w' | 'b' | 'v' | 'r'):
     }
   }
   if (char === 'v') {
-    if (readEventFromQueue(lexicalCategorizerQueue, 0)?.value === 'o' &&
-    readEventFromQueue(lexicalCategorizerQueue, 1)?.value === 'i' &&
-    readEventFromQueue(lexicalCategorizerQueue, 2)?.value === 'd' &&
-    (readEventFromQueue(lexicalCategorizerQueue, 3)?.value === ' ' ||
-    readEventFromQueue(lexicalCategorizerQueue, 3)?.value === ';')) {
+    if ((readEventFromQueue(lexicalCategorizerQueue, 0) as LexicalCategorizerEvent)?.value === 'o' &&
+    (readEventFromQueue(lexicalCategorizerQueue, 1) as LexicalCategorizerEvent)?.value === 'i' &&
+    (readEventFromQueue(lexicalCategorizerQueue, 2) as LexicalCategorizerEvent)?.value === 'd' &&
+    ((readEventFromQueue(lexicalCategorizerQueue, 3) as LexicalCategorizerEvent)?.value === ' ' ||
+    (readEventFromQueue(lexicalCategorizerQueue, 3) as LexicalCategorizerEvent)?.value === ';')) {
       getEventFromQueue(lexicalCategorizerQueue);
       getEventFromQueue(lexicalCategorizerQueue);
       getEventFromQueue(lexicalCategorizerQueue);
@@ -188,13 +192,13 @@ const lookAheadForReservedKey = (char: 'g' | 'i' | 'e' | 'w' | 'b' | 'v' | 'r'):
     }
   }
   if (char === 'r') {
-    if (readEventFromQueue(lexicalCategorizerQueue, 0)?.value === 'e' &&
-      readEventFromQueue(lexicalCategorizerQueue, 1)?.value === 't' &&
-      readEventFromQueue(lexicalCategorizerQueue, 2)?.value === 'u' &&
-      readEventFromQueue(lexicalCategorizerQueue, 3)?.value === 'r' &&
-      readEventFromQueue(lexicalCategorizerQueue, 4)?.value === 'n' &&
-      (readEventFromQueue(lexicalCategorizerQueue, 5)?.value === ' ' ||
-      readEventFromQueue(lexicalCategorizerQueue, 5)?.value === ';')) {
+    if ((readEventFromQueue(lexicalCategorizerQueue, 0) as LexicalCategorizerEvent)?.value === 'e' &&
+      (readEventFromQueue(lexicalCategorizerQueue, 1) as LexicalCategorizerEvent)?.value === 't' &&
+      (readEventFromQueue(lexicalCategorizerQueue, 2) as LexicalCategorizerEvent)?.value === 'u' &&
+      (readEventFromQueue(lexicalCategorizerQueue, 3) as LexicalCategorizerEvent)?.value === 'r' &&
+      (readEventFromQueue(lexicalCategorizerQueue, 4) as LexicalCategorizerEvent)?.value === 'n' &&
+      ((readEventFromQueue(lexicalCategorizerQueue, 5) as LexicalCategorizerEvent)?.value === ' ' ||
+      (readEventFromQueue(lexicalCategorizerQueue, 5) as LexicalCategorizerEvent)?.value === ';')) {
       getEventFromQueue(lexicalCategorizerQueue);
       getEventFromQueue(lexicalCategorizerQueue);
       getEventFromQueue(lexicalCategorizerQueue);
@@ -203,6 +207,23 @@ const lookAheadForReservedKey = (char: 'g' | 'i' | 'e' | 'w' | 'b' | 'v' | 'r'):
       return {
         reserved: true,
         value: 'return',
+      };
+    }
+  }
+  if (char === 'p') {
+    if ((readEventFromQueue(lexicalCategorizerQueue, 0) as LexicalCategorizerEvent)?.value === 'r' &&
+    (readEventFromQueue(lexicalCategorizerQueue, 1) as LexicalCategorizerEvent)?.value === 'i' &&
+    (readEventFromQueue(lexicalCategorizerQueue, 2) as LexicalCategorizerEvent)?.value === 'n' &&
+    (readEventFromQueue(lexicalCategorizerQueue, 3) as LexicalCategorizerEvent)?.value === 't' &&
+    ((readEventFromQueue(lexicalCategorizerQueue, 4) as LexicalCategorizerEvent)?.value === ' ' ||
+    (readEventFromQueue(lexicalCategorizerQueue, 4) as LexicalCategorizerEvent)?.value === ';')) {
+      getEventFromQueue(lexicalCategorizerQueue);
+      getEventFromQueue(lexicalCategorizerQueue);
+      getEventFromQueue(lexicalCategorizerQueue);
+      getEventFromQueue(lexicalCategorizerQueue);
+      return {
+        reserved: true,
+        value: 'print',
       };
     }
   }
@@ -215,9 +236,9 @@ const lexicalAnalizerFSM = (): LexicalFSMReturn | 1 | 0 => {
   let currentState = 1;
   let token = '';
   while (lexicalCategorizerQueue.length > 0) {
-    let currentEvent: GenericEvent | undefined;
+    let currentEvent: LexicalCategorizerEvent | undefined;
     if (currentState === 5 || currentState === 9) currentEvent = eventBuffer;
-    else currentEvent = getEventFromQueue(lexicalCategorizerQueue);
+    else currentEvent = getEventFromQueue(lexicalCategorizerQueue) as LexicalCategorizerEvent;
     if (currentEvent) {
       if (currentEvent.type === 'EOF') return 1;
       switch (currentState) {
@@ -230,7 +251,8 @@ const lexicalAnalizerFSM = (): LexicalFSMReturn | 1 | 0 => {
                 currentEvent.value === 'w' ||
                 currentEvent.value === 'b' ||
                 currentEvent.value === 'v' ||
-                currentEvent.value === 'r') {
+                currentEvent.value === 'r' ||
+                currentEvent.value === 'p') {
                 const isReserved = lookAheadForReservedKey(currentEvent.value);
                 if (isReserved.reserved) {
                   token += isReserved.value;
@@ -258,7 +280,7 @@ const lexicalAnalizerFSM = (): LexicalFSMReturn | 1 | 0 => {
               break;
             case 'DIGIT': {
               token += currentEvent.value;
-              const nextChar = readEventFromQueue(lexicalCategorizerQueue, 0);
+              const nextChar = readEventFromQueue(lexicalCategorizerQueue, 0) as LexicalCategorizerEvent;
               if (nextChar?.value === ';' || nextChar?.value === ' ' || nextChar?.value === ')') {
                 return {
                   token,
@@ -283,6 +305,12 @@ const lexicalAnalizerFSM = (): LexicalFSMReturn | 1 | 0 => {
               }
               break;
             case 'DELIMITER':
+              if (currentEvent.value === ';') {
+                token += currentEvent.value;
+                eventBuffer = currentEvent;
+                currentState = 9;
+              }
+              break;
             case 'EOL':
               break;
             default:
@@ -290,17 +318,31 @@ const lexicalAnalizerFSM = (): LexicalFSMReturn | 1 | 0 => {
           }
           break;
         case 2: {
+          if (currentEvent.value === ';' || currentEvent.value === '(' || currentEvent.value === ')' || currentEvent.value === ':' ||
+              arithmeticOpRegex.test(currentEvent.value) || booleanOpRegex.test(currentEvent.value)) {
+            return {
+              token,
+              type: 'IDENTIFIER',
+              add: currentEvent.value,
+            };
+          }
+          if (currentEvent.value === ' ') {
+            return {
+              token,
+              type: 'IDENTIFIER',
+            };
+          }
           if (letterRegex.test(currentEvent.value) || digitRegex.test(currentEvent.value) || currentEvent.value === '_') {
             token += currentEvent.value;
-            const nextChar = readEventFromQueue(lexicalCategorizerQueue, 0);
-            if (nextChar?.value === ';' || nextChar?.value === ' ' || nextChar?.value === '(' || nextChar?.value === ')' || nextChar?.value === ':') {
+            const nextChar = readEventFromQueue(lexicalCategorizerQueue, 0) as LexicalCategorizerEvent;
+            if (nextChar?.value === ';' || nextChar?.value === ' ' || nextChar?.value === '(' || nextChar?.value === ')' || nextChar?.value === ':' || nextChar?.value === ',') {
               return {
                 token,
                 type: 'IDENTIFIER',
               };
             }
             if (letterRegex.test(nextChar?.value ?? '') || digitRegex.test(nextChar?.value ?? '') || nextChar?.value === '_') break;
-            throw new Error(`Invalid ascii event on state 2 of lexical analizer FSM: ${JSON.stringify(currentEvent)}`);
+            else throw new Error(`Invalid ascii event on state 2 of lexical analizer FSM: ${JSON.stringify(currentEvent)}`);
           }
           throw new Error(`Invalid ascii event on state 2 of lexical analizer FSM: ${JSON.stringify(currentEvent)}`);
         }
@@ -320,7 +362,7 @@ const lexicalAnalizerFSM = (): LexicalFSMReturn | 1 | 0 => {
         case 4:
           if (digitRegex.test(currentEvent.value)) {
             token += currentEvent.value;
-            const nextChar = readEventFromQueue(lexicalCategorizerQueue, 0);
+            const nextChar = readEventFromQueue(lexicalCategorizerQueue, 0) as LexicalCategorizerEvent;
             if (nextChar?.value === ';' || nextChar?.value === ' ' || nextChar?.value === ')') {
               return {
                 token,
@@ -387,20 +429,23 @@ const lexicalAnalizerFSM = (): LexicalFSMReturn | 1 | 0 => {
   return 0;
 };
 
-const processLexicalCatEvent = (): 0 | 1 => {
+const processLexicalCategorization = (): 0 | 1 => {
   while (lexicalCategorizerQueue.length > 0) {
     const FSMReturn = lexicalAnalizerFSM();
     // console.info('currentToken', JSON.stringify(FSMReturn));
     if (FSMReturn === 1) {
+      addEventToQueue(removeUndefinedKeys({ type: 'SPECIAL', value: 'EOF' }) as TokenEvent, tokensQueue);
       console.info('tokensQueue', tokensQueue);
       return 1;
     }
     if (FSMReturn === 0)
       throw new Error('Lexical analyzer FSM returned on state 0');
-    addEventToQueue(removeUndefinedKeys({ type: FSMReturn.type, value: FSMReturn.token, subType: FSMReturn.subType }) as GenericEvent, tokensQueue);
+    if (FSMReturn.type !== 'COMMENT') addEventToQueue(removeUndefinedKeys({ type: FSMReturn.type, value: FSMReturn.token, subType: FSMReturn.subType }) as TokenEvent, tokensQueue);
+    if (FSMReturn.add) addEventToQueue(removeUndefinedKeys({ type: 'SPECIAL', value: FSMReturn.add }) as TokenEvent, tokensQueue);
   }
+  addEventToQueue(removeUndefinedKeys({ type: 'SPECIAL', value: 'EOF' }) as TokenEvent, tokensQueue);
   console.info('tokensQueue', tokensQueue);
   return 1;
 };
 
-export { processLexicalCatEvent };
+export { processLexicalCategorization };

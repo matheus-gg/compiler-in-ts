@@ -3,7 +3,7 @@ import { asciiCategorizerQueue, lexicalCategorizerQueue } from '../utils/queues'
 
 const letterRegex = /^[a-zA-Z]$/;
 const digitRegex = /^[0-9]$/;
-const specialRegex = /^[!@#$%:[\]^&"*)(+=._-{}><]$/;
+const specialRegex = /^[!@#$%:[\]^&"*,)(+=._-{}><]$/;
 
 const categorizeChar = (char: string) => {
   if (char.length !== 1) return 'FORBIDDEN';
@@ -15,7 +15,7 @@ const categorizeChar = (char: string) => {
   return 'UNKNOWN';
 };
 
-const processAsciiCatEvent = (): 0 | 1 => {
+const processAsciiCategorization = (): 0 | 1 => {
   while (asciiCategorizerQueue.length > 0) {
     const currentEvent = getEventFromQueue(asciiCategorizerQueue);
     if (currentEvent) {
@@ -44,4 +44,4 @@ const processAsciiCatEvent = (): 0 | 1 => {
   return 1;
 };
 
-export { processAsciiCatEvent };
+export { processAsciiCategorization };

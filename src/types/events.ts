@@ -19,10 +19,12 @@ export type TokenEvent = {
   subType?: string;
 };
 
-export type SyntacticRoutineEvent = {
-  type: string;
-  value: string;
-}
+export type SemanticRoutineEvent = {
+  recognized: boolean;
+  routine?: string;
+  expression?: string;
+  type?: string;
+};
 
-export type GenericEvent = FSEvent | AsciiCategorizerEvent | LexicalCategorizerEvent | TokenEvent | SyntacticRoutineEvent;
-export type GenericEventQueue = FSEvent[] | AsciiCategorizerEvent[] | LexicalCategorizerEvent[] | TokenEvent[] | SyntacticRoutineEvent[];
+export type GenericEvent = FSEvent | AsciiCategorizerEvent | LexicalCategorizerEvent | TokenEvent | SemanticRoutineEvent;
+export type GenericEventQueue = FSEvent[] | AsciiCategorizerEvent[] | LexicalCategorizerEvent[] | TokenEvent[] | SemanticRoutineEvent[];

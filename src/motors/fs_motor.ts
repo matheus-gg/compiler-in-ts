@@ -12,7 +12,7 @@ const readFile = (name: string): string | -1 => {
   }
 };
 
-const processFSEvent = (): 0 | 1 => {
+const processFileExtraction = (): 0 | 1 => {
   const file = readFile('example.txt');
   if (file === -1) return 0;
   let eventValue = '';
@@ -30,4 +30,4 @@ const processFSEvent = (): 0 | 1 => {
   return 1;
 };
 
-export { processFSEvent };
+export { processFileExtraction };

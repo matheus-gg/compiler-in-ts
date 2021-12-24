@@ -1,0 +1,19 @@
+int fib(int n) {
+  int i = 2;
+  int fib1 = 1;
+  int fib2 = 1;
+  int soma = 0;
+  while (i < n) {
+    soma = fib1 + fib2;
+    fib1 = fib2;
+    fib2 = soma;
+    i = i + 1;
+  };
+  return fib2;
+};
+
+int main() {
+  int result = fib(5);
+  print (result);
+  return 0;
+}
